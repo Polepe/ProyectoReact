@@ -4,6 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tablero</title>
+    <style>
+      .prioridad-alta {
+        color: firebrick;
+      }
+      .prioridad-media {
+        color: orange;
+      }
+      .prioridad-baja {
+        color: green;
+      }
+    </style>
   </head>
   <body>
     <header>Tablero</header>
@@ -16,22 +27,76 @@
       <section aria-labelledby="por-hacer">
         <h2 id="por-hacer">Por hacer</h2>
         <ol>
-          <li>Diseñar el logo</li>
-          <li>Diseñar login</li>
-          <li>Diseñar landing page</li>
+          <li>
+            <article>
+              <h3>Diseñar el logo</h3>
+              <p>TAB-1</p>
+              <p class="prioridad-alta">Prioridad: alta</p>
+              <p>
+                Fecha límite: <time datetime="2026-11-25">25 de noviembre</time>
+              </p>
+            </article>
+          </li>
+          <li>
+            <article>
+              <h3>Diseñar login</h3>
+              <p>TAB-2</p>
+              <p class="prioridad-media">Prioridad: media</p>
+              <p>
+                Fecha límite: <time datetime="2026-11-28">28 de noviembre</time>
+              </p>
+            </article>
+          </li>
+          <li>
+            <article>
+              <h3>Diseñar landing page</h3>
+              <p>TAB-3</p>
+              <p class="prioridad-baja">Prioridad: baja</p>
+              <p>
+                Fecha límite: <time datetime="2026-11-28">28 de noviembre</time>
+              </p>
+            </article>
+          </li>
         </ol>
       </section>
       <section aria-labelledby="en-curso">
         <h2 id="en-curso">En curso</h2>
         <ol>
-          <li>Desarrollo actividad A1</li>
-          <li>Desarrollo actividad A2</li>
+          <li>
+            <article>
+              <h3>Desarrollo actividad A1</h3>
+              <p>TAB-4</p>
+              <p class="prioridad-alta">Prioridad: alta</p>
+              <p>
+                Fecha límite: <time datetime="2026-11-30">30 de noviembre</time>
+              </p>
+            </article>
+          </li>
+          <li>
+            <article>
+              <h3>Desarrollo actividad A2</h3>
+              <p>TAB-5</p>
+              <p class="prioridad-media">Prioridad: media</p>
+              <p>
+                Fecha límite: <time datetime="2026-11-30">30 de noviembre</time>
+              </p>
+            </article>
+          </li>
         </ol>
       </section>
       <section aria-labelledby="hecho">
         <h2 id="hecho">Hecho</h2>
         <ol>
-          <li>Infraestructura</li>
+          <li>
+            <article>
+              <h3>Infraestructura</h3>
+              <p>TAB-6</p>
+              <p class="prioridad-alta">Prioridad: alta</p>
+              <p>
+                Fecha límite: <time datetime="2026-12-01">1 de diciembre</time>
+              </p>
+            </article>
+          </li>
         </ol>
       </section>
     </main>
