@@ -58,6 +58,23 @@
             </article>
           </li>
         </ol>
+        <form>
+          <label for="titulo">Título</label>
+          <input
+            id="titulo"
+            type="text"
+            aria-describedby="error-message"
+            aria-invalid="true"
+          />
+          <p id="error-message">El título es obligatorio</p>
+          <label for="prioridad">Prioridad</label>
+          <select id="prioridad">
+            <option>Alta</option>
+            <option>Media</option>
+            <option>Baja</option>
+          </select>
+          <button type="submit">Añadir tarjeta</button>
+        </form>
       </section>
       <section aria-labelledby="en-curso">
         <h2 id="en-curso">En curso</h2>
