@@ -1,7 +1,7 @@
 # Tablero de tareas — guía por fases
 
 > Copia local de la guía. Versión editable y comentable: https://claude.ai/artifact/4EDthFTfHLdPJHukTFZkt7
-> Última sincronización: 2026-11-17. Si cambias una de las dos, avísame para mantenerlas iguales.
+> Última sincronización: 2026-11-18. Si cambias una de las dos, avísame para mantenerlas iguales.
 
 ## Cómo usar esta guía
 
@@ -16,6 +16,8 @@ Cada fase te da tareas pequeñas con un criterio de aceptación; el código lo e
 **Accesibilidad como contrato, no como repaso final.** Tus E2E localizan por rol y nombre accesible. Un elemento sin nombre accesible no se puede testear, así que no está terminado. Esta regla ordena muchas decisiones de diseño por ti.
 
 **Cómo leer una tarea.** El identificador (`T4.3`) es fase y número. *Hecho cuando* es el criterio de aceptación. *Para desbloquearte* son las preguntas que deberías saber responder al acabar: si puedes contestarlas, la tarea te ha enseñado lo que tenía que enseñarte.
+
+**Pasos atómicos.** Cada tarea se parte en pasos (`T0.1.1`, `T0.1.2`…) de una sola acción, cada uno con su comprobación. Antes de cada tarea, *Repasa* te dice qué conceptos buscar si no recuerdas cómo se hacía algo: te dice qué mirar, no la solución. Las fases se atomizan cuando llegas a ellas. Ahora mismo está atomizada la Fase 0; las demás mantienen sus tareas grandes hasta que empieces cada una. Puedes pedir pista de un paso concreto: *«pista de T0.1.3»*.
 
 ## Antes de empezar: ajustes al proyecto
 
@@ -65,24 +67,107 @@ Cada fase usa solo lo que el curso ya te ha dado, con una excepción deliberada:
 | 16 | Rendimiento | Fase 12 |
 | 17 | Estado fuera de React y MVVM | Fase 14 (opcional) |
 | 18 | Asincronía y estado de servidor | Fase 11 |
-| 19 | Movimiento e interacción | Fase 13 |
+| 19 | Movimiento e interacción | Fase 13 (opcional) |
 | 20 | QA Engineering | Fase 9 |
 | 21 | Trabajar en el monorepo | Fase 15 |
 
 ## Fase 0 — El tablero como HTML
 
-*Módulos 1 y 2. Sin React, sin build, sin TypeScript.* Un `index.html` estático con tres columnas y tarjetas escritas a mano. Suena a pérdida de tiempo y es la fase que más te va a ahorrar: aquí decides los roles y los nombres accesibles de los que luego colgarán todos los tests.
+*Módulos 1 y 2. Sin React, sin build, sin TypeScript.* Una maqueta estática en `maqueta/index.html`, con tres columnas y tarjetas escritas a mano. Con `npm run dev` arrancado la ves en `http://localhost:5173/maqueta/`. Aquí decides los roles y los nombres accesibles de los que luego colgarán todos los tests.
 
-- [ ] **T0.1** Escribe el esqueleto de la página con sus landmarks. *Hecho cuando* la vista de accesibilidad del navegador muestra un banner, un main y, si lo pones, un nav, cada uno distinguible por su nombre.
-- [ ] **T0.2** Pon el título del tablero y los de las columnas con la jerarquía de encabezados correcta. *Hecho cuando* el árbol de encabezados se lee solo, sin saltos de nivel.
-- [ ] **T0.3** Representa cada columna con su lista de tarjetas. *Hecho cuando* un lector de pantalla anuncia cuántas tarjetas hay en la columna sin que tú lo escribas a mano en ningún sitio.
-- [ ] **T0.4** Maqueta una tarjeta: título, identificador y prioridad. *Hecho cuando* la prioridad se entiende sin ver el color.
-- [ ] **T0.5** Añade el formulario de nueva tarjeta con sus etiquetas y un estado de error. *Hecho cuando* el error se anuncia al llegar al campo y el campo se marca como inválido.
-- [ ] **T0.6** Pasa Lighthouse en incógnito y arregla lo que salga en accesibilidad. *Hecho cuando* no queda ningún fallo de contraste ni de nombre accesible.
+**Tu herramienta principal en esta fase** es el árbol de accesibilidad. En Chrome: DevTools → pestaña Elements → panel Accessibility → activa *Enable full-page accessibility tree* (en versiones nuevas, *Show accessibility tree*) y pulsa el icono de persona que aparece arriba a la derecha. Casi todos los pasos se comprueban ahí.
 
-**Para desbloquearte.** ¿Qué elemento convierte «tres columnas» en algo que un lector de pantalla pueda contar y recorrer? ¿Qué diferencia hay entre el texto visible de un botón y su nombre accesible, y cuándo dejan de coincidir? Si dos columnas tienen botones «Añadir», ¿cómo distingue el test uno de otro? ¿Qué atributo ata un mensaje de error a su campo, y cuál dice que el campo está mal?
+### T0.0 — Preparar el archivo
 
-**Decisión que cierras aquí, y no se toca en doce fases:** cómo se llama cada cosa. Escribe esos nombres en un sitio aparte; son el contrato de tus E2E.
+*Repasa:* la estructura mínima de un documento HTML (`<!doctype>`, `<html>`, `<head>`, `<body>`), el atributo `lang` y las etiquetas `<meta>` de `charset` y `viewport`.
+
+- [ ] **T0.0.1** Crea la carpeta `maqueta` en la raíz del proyecto y dentro un `index.html` vacío. *Comprueba:* el archivo existe junto a `src`, no dentro.
+- [ ] **T0.0.2** Escribe la estructura mínima del documento, en español y con título. *Comprueba:* en `localhost:5173/maqueta/` la pestaña del navegador muestra tu título.
+- [ ] **T0.0.3** Abre el árbol de accesibilidad. *Comprueba:* ves un nodo raíz cuyo nombre es el título de la página.
+
+### T0.1 — Las grandes regiones (landmarks)
+
+*Repasa:* los elementos `<header>`, `<main>` y `<nav>`, qué rol tiene cada uno, y el atributo `aria-label`. Busca también en qué caso un `<header>` deja de ser un *banner*. [Guía de landmarks de la APG](https://www.w3.org/WAI/ARIA/apg/practices/landmark-regions/).
+
+- [ ] **T0.1.1** Añade la cabecera de la página con el nombre de la app. *Comprueba:* el árbol muestra un nodo `banner`.
+- [ ] **T0.1.2** Añade la zona principal, vacía de momento. *Comprueba:* aparece un nodo `main`.
+- [ ] **T0.1.3** Añade una navegación con dos enlaces falsos a tableros («Sprint 12», «Sprint 13»). *Comprueba:* aparece un nodo `navigation` con dos `link` dentro.
+- [ ] **T0.1.4** Dale nombre a la navegación. *Comprueba:* el árbol muestra `navigation "Tableros"`, con nombre, no solo el rol.
+- [ ] **T0.1.5** Marca cuál es el tablero actual en la navegación. *Comprueba:* en el panel Accessibility, el enlace actual tiene una propiedad que lo distingue del otro.
+- [ ] **T0.1.6** Haz commit. *Comprueba:* `git log` muestra un commit con `T0.1` en el mensaje.
+
+### T0.2 — Encabezados
+
+*Repasa:* los niveles `<h1>` a `<h6>` y la regla de no saltar niveles; el elemento `<section>`, el atributo `aria-labelledby` y cuándo una `<section>` se convierte en landmark.
+
+- [ ] **T0.2.1** Dentro de la zona principal, pon el título del tablero actual («Sprint 12»). *Comprueba:* es el único `heading` de nivel 1 de la página.
+- [ ] **T0.2.2** Crea las tres columnas como bloques vacíos, cada una con su título: «Por hacer», «En curso», «Hecho». *Comprueba:* los tres títulos son `heading` del nivel inmediatamente inferior.
+- [ ] **T0.2.3** Decide si el nombre de la app de la cabecera debe ser un encabezado o no. *Comprueba:* puedes explicar tu decisión en una frase.
+- [ ] **T0.2.4** Haz que cada columna tome su nombre de su propio título, sin repetir el texto. *Comprueba:* en el árbol cada columna aparece con el nombre de su título.
+- [ ] **T0.2.5** Recorre los encabezados con el lector de pantalla: Narrador se activa con `Ctrl` + `Win` + `Enter`, y `H` salta de encabezado en encabezado. *Comprueba:* oyes el tablero y las tres columnas en orden y con su nivel.
+
+### T0.3 — Listas de tarjetas
+
+*Repasa:* `<ul>`, `<ol>` y `<li>`, y cuándo el orden de una lista importa.
+
+- [ ] **T0.3.1** Decide si las tarjetas de una columna van en lista ordenada o no ordenada. *Comprueba:* puedes justificarlo pensando en lo que harás en la Fase 13.
+- [ ] **T0.3.2** En «Por hacer», añade una lista con tres elementos que solo tengan un texto. *Comprueba:* el árbol muestra `list` con tres `listitem`.
+- [ ] **T0.3.3** Haz lo mismo en «En curso» con dos elementos y en «Hecho» con uno. *Comprueba:* cada lista tiene su número correcto de elementos.
+- [ ] **T0.3.4** Entra en una lista con Narrador. *Comprueba:* anuncia cuántos elementos tiene sin que lo hayas escrito en ningún sitio.
+- [ ] **T0.3.5** Haz commit.
+
+### T0.4 — La tarjeta
+
+*Repasa:* el elemento `<article>`; el criterio WCAG [1.4.1 Uso del color](https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html); cómo añadir CSS con una etiqueta `<style>` en el `<head>`; el elemento `<time>` y su atributo `datetime`.
+
+- [ ] **T0.4.1** En la primera tarjeta, convierte el texto en el título de la tarjeta. *Comprueba:* es un `heading` del nivel siguiente al de la columna.
+- [ ] **T0.4.2** Añade el identificador de la tarjeta («TAB-1»). *Comprueba:* se ve, pero no es un encabezado.
+- [ ] **T0.4.3** Añade la prioridad escrita como texto («Prioridad: alta»). *Comprueba:* se entiende leyendo solo el texto.
+- [ ] **T0.4.4** Decide qué elemento envuelve el contenido de la tarjeta dentro del `<li>`, si alguno. *Comprueba:* puedes justificarlo en una frase.
+- [ ] **T0.4.5** Dale un color a cada prioridad con CSS. *Comprueba:* si borras la etiqueta `<style>`, la prioridad se sigue entendiendo.
+- [ ] **T0.4.6** Añade a la primera tarjeta su fecha límite, escrita para personas («25 de noviembre») y marcada para máquinas. *Comprueba:* en el HTML la fecha lleva también su versión en formato `AAAA-MM-DD`.
+- [ ] **T0.4.7** Aplica la misma estructura a las seis tarjetas, con prioridades variadas. *Comprueba:* Narrador lee todas las tarjetas igual.
+- [ ] **T0.4.8** Haz commit.
+
+### T0.5 — El formulario de nueva tarjeta
+
+*Repasa:* `<form>`, `<label>` y su atributo `for`, `<input>`, `<select>` y `<option>`, el atributo `type` de `<button>`. Para el error: [aria-describedby](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-describedby) y [aria-invalid](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-invalid).
+
+- [ ] **T0.5.1** Al final de la columna «Por hacer», añade un formulario vacío. *Comprueba:* existe en el HTML y no rompe nada de lo anterior.
+- [ ] **T0.5.2** Añade un campo de texto para el título, con su etiqueta visible. *Comprueba:* al hacer clic en la etiqueta, el cursor salta al campo.
+- [ ] **T0.5.3** Añade un selector de prioridad con sus tres opciones y su etiqueta. *Comprueba:* lo mismo, el clic en la etiqueta enfoca el selector.
+- [ ] **T0.5.4** Añade el botón de enviar. *Comprueba:* el árbol muestra `button "Añadir tarjeta"`.
+- [ ] **T0.5.5** Escribe a mano, debajo del campo de título, un mensaje de error: «El título es obligatorio». *Comprueba:* se ve en pantalla.
+- [ ] **T0.5.6** Ata el mensaje al campo. *Comprueba:* en el panel Accessibility del campo aparece *Description* con el texto del error.
+- [ ] **T0.5.7** Marca el campo como inválido. *Comprueba:* el panel muestra *Invalid* en verdadero.
+- [ ] **T0.5.8** Llega al campo tabulando con Narrador activo. *Comprueba:* oyes la etiqueta, que es inválido y el mensaje de error.
+- [ ] **T0.5.9** Haz commit.
+
+### T0.6 — Resumen del sprint: una tabla de datos
+
+*Repasa:* `<table>`, `<caption>`, `<thead>`, `<tbody>`, `<tr>`, `<th>` con su atributo `scope` y `<td>`; la pestaña Console de DevTools y `document.querySelectorAll`.
+
+- [ ] **T0.6.1** Debajo de las tres columnas, dentro de la zona principal, crea una tabla con un título visible: «Resumen del sprint». *Comprueba:* el árbol muestra `table "Resumen del sprint"`.
+- [ ] **T0.6.2** Añade la fila de cabeceras: «Columna» y «Tarjetas». *Comprueba:* las dos aparecen como `columnheader`.
+- [ ] **T0.6.3** Añade una fila por cada columna del tablero, con su número de tarjetas. *Comprueba:* hay tres filas de datos y los números coinciden con tus listas.
+- [ ] **T0.6.4** En la pestaña Console, pregúntale al DOM cuántos `li` hay en la página. *Comprueba:* el número coincide con la suma de tu tabla.
+- [ ] **T0.6.5** Recorre la tabla con Narrador, celda a celda (`Ctrl` + `Alt` + flechas). *Comprueba:* al cambiar de celda oyes también la cabecera de la columna.
+- [ ] **T0.6.6** Haz commit.
+
+### T0.7 — Auditoría y contrato de nombres
+
+*Repasa:* el panel Lighthouse de DevTools y el criterio WCAG [1.4.3 Contraste mínimo](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html).
+
+- [ ] **T0.7.1** Abre la maqueta en una ventana de incógnito, para que las extensiones no interfieran.
+- [ ] **T0.7.2** En Lighthouse, marca solo la categoría de accesibilidad, en modo navegación y escritorio, y ejecútalo. *Comprueba:* tienes una puntuación y una lista de fallos, o ninguno.
+- [ ] **T0.7.3** Arregla los fallos de uno en uno, volviendo a ejecutar después de cada arreglo. *Comprueba:* no queda ningún fallo.
+- [ ] **T0.7.4** Revisa a mano el contraste de los colores de prioridad con el selector de color de DevTools. *Comprueba:* todos llegan al nivel AA.
+- [ ] **T0.7.5** Crea `maqueta/contrato.md` y apunta los roles y nombres accesibles de todo lo interactivo y de cada región. *Comprueba:* con esa lista podrías encontrar cualquier elemento sin mirar el HTML.
+- [ ] **T0.7.6** Haz commit y push.
+
+**Para desbloquearte.** ¿Qué elemento convierte «tres columnas» en algo que un lector de pantalla pueda contar y recorrer? ¿Qué gana la tabla con `<th>` y `scope` frente a una rejilla de `<div>` que se ve igual? ¿Qué es el DOM, y en qué se diferencia del HTML que escribiste? ¿Qué diferencia hay entre el texto visible de un botón y su nombre accesible, y cuándo dejan de coincidir? Si dos columnas tuvieran botones «Añadir», ¿cómo los distinguiría un test? ¿Qué atributo ata un mensaje de error a su campo, y cuál dice que el campo está mal?
+
+**Decisión que cierras aquí, y no se toca en doce fases:** cómo se llama cada cosa. El `contrato.md` de T0.7.5 es el contrato de tus E2E.
 
 ## Fase 1 — TypeScript estricto, Vite y capas
 
@@ -91,10 +176,15 @@ Cada fase usa solo lo que el curso ya te ha dado, con una excepción deliberada:
 - [ ] **T1.1** Revisa el `tsconfig` de la plantilla y entiende cada opción. *Hecho cuando* `tsc --noEmit` pasa limpio y `strict` está activo de verdad, no solo escrito.
 - [ ] **T1.2** Define el tipo de una tarjeta y el de una columna, y escribe un tablero de ejemplo que los cumpla. *Hecho cuando* el compilador se queja si le quitas un campo obligatorio.
 - [ ] **T1.3** Sustituye `oxlint` por ESLint con `typescript-eslint`. *Hecho cuando* el lint falla ante un `any` explícito.
-- [ ] **T1.4** Crea las carpetas por capas y mueve ahí los tipos. *Hecho cuando* el dominio no importa nada de la interfaz; la flecha va siempre hacia dentro.
-- [ ] **T1.5** Provoca tres errores del compilador a propósito y apunta qué te dice cada uno. *Hecho cuando* sabes leer el error sin buscarlo.
+- [ ] **T1.4** Añade un formateador y un script para lanzarlo. *Hecho cuando* desordenas a propósito la sangría de un archivo y el script la arregla.
+- [ ] **T1.5** Crea las carpetas por capas y mueve ahí los tipos. *Hecho cuando* el dominio no importa nada de la interfaz; la flecha va siempre hacia dentro.
+- [ ] **T1.6** Provoca tres errores del compilador a propósito y apunta qué te dice cada uno. *Hecho cuando* sabes leer el error sin buscarlo.
+- [ ] **T1.7** Lee tu `package.json` y el lockfile. *Hecho cuando* sabes explicar cada script, por qué cada paquete está en `dependencies` o en `devDependencies`, y qué pasaría si borras el lockfile.
+- [ ] **T1.8** Escribe un script en TypeScript, sin framework, que lea la maqueta con el DOM tipado y cuente las tarjetas de cada columna. *Hecho cuando* usa `querySelector<T>`, importa tus tipos con `import type` y el compilador te obliga a contemplar que un elemento no exista.
+- [ ] **T1.9** Carga ese script de tres formas: compilado con `tsc` sin bundler, empaquetado con esbuild y servido por Vite. *Hecho cuando* puedes explicar, mirando la pestaña Network, cuántas peticiones hace cada una y por qué.
+- [ ] **T1.10** Observa Vite por dentro: cambia un texto con `npm run dev` arrancado, luego construye con `npm run build` y abre `dist`. *Hecho cuando* puedes explicar qué es el HMR, y una función exportada que nadie usa no aparece en el bundle (tree shaking).
 
-**Para desbloquearte.** ¿Qué te da exactamente `strict` que no tenías, y cuál de sus banderas te va a doler más al principio? ¿Por qué `import type` existe si `import` ya funciona? Si el dominio no puede importar de la interfaz, ¿dónde vive la función que mueve una tarjeta de columna? ¿Qué pasa en la pestaña Network cuando Vite sirve en desarrollo y qué cambia al construir para producción?
+**Para desbloquearte.** ¿Qué te da exactamente `strict` que no tenías, y cuál de sus banderas te va a doler más al principio? ¿Por qué `import type` existe si `import` ya funciona? ¿Qué diferencia hay entre un linter y un formateador? Si el dominio no puede importar de la interfaz, ¿dónde vive la función que mueve una tarjeta de columna? ¿Qué pasa en la pestaña Network cuando Vite sirve en desarrollo y qué cambia al construir para producción?
 
 **Capas que vas a usar el resto del proyecto:** dominio (tipos y reglas, sin dependencias), aplicación (casos de uso y los puertos que necesitan), infraestructura (lo que habla con el mundo) e interfaz (React). En la Fase 6 esta separación es la que te deja inyectar dobles sin trucos.
 
@@ -106,10 +196,12 @@ Cada fase usa solo lo que el curso ya te ha dado, con una excepción deliberada:
 - [ ] **T2.2** Extrae el componente de tarjeta con sus props tipadas. *Hecho cuando* el compilador te impide usarlo sin pasarle lo que necesita.
 - [ ] **T2.3** Extrae el componente de columna, que recibe sus tarjetas y las pinta. *Hecho cuando* el HTML resultante conserva los roles y nombres que fijaste en la Fase 0.
 - [ ] **T2.4** Pinta las tres columnas desde un array. *Hecho cuando* añadir una columna al array añade una columna en pantalla sin tocar el JSX.
-- [ ] **T2.5** Instala Vitest y Testing Library y escribe el primer test de componente: la tarjeta muestra su título. *Hecho cuando* pasa y sigue el patrón AAA.
-- [ ] **T2.6** Instala Playwright y escribe el primer E2E con su Page Object: la página carga y se ven las tres columnas. *Hecho cuando* pasa localizando por rol y nombre, sin un solo selector CSS.
+- [ ] **T2.5** Observa el ciclo de vida: pon un `console.log` temporal en el cuerpo de la tarjeta y otro en un efecto con su limpieza, recarga y mira la consola. *Hecho cuando* sabes decir cuándo se monta, cuándo se pinta y por qué `StrictMode` lo hace dos veces; y has quitado los `console.log`.
+- [ ] **T2.6** Comprueba que la tarjeta y la columna son componentes presentacionales. *Hecho cuando* ninguna de las dos tiene estado propio ni sabe de dónde vienen sus datos.
+- [ ] **T2.7** Instala Vitest y Testing Library y escribe el primer test de componente: la tarjeta muestra su título. *Hecho cuando* pasa y sigue el patrón AAA.
+- [ ] **T2.8** Instala Playwright y escribe el primer E2E con su Page Object: la página carga y se ven las tres columnas. *Hecho cuando* pasa localizando por rol y nombre, sin un solo selector CSS.
 
-**Para desbloquearte.** ¿Por qué `StrictMode` ejecuta algunas cosas dos veces en desarrollo, y qué clase de error pretende sacarte a la luz? ¿Qué hace falta para que React no te avise sobre las `key` de una lista, y qué valor es mala idea usar ahí? En el test de la tarjeta, ¿qué consulta de Testing Library se parece más a lo que hace una persona? ¿Qué debería saber el Page Object y qué debería quedarse en el test?
+**Para desbloquearte.** ¿Qué es JSX cuando el navegador lo recibe? ¿Por qué `StrictMode` ejecuta algunas cosas dos veces en desarrollo, y qué clase de error pretende sacarte a la luz? ¿Qué gana un componente presentacional frente a uno que busca sus propios datos? ¿Qué hace falta para que React no te avise sobre las `key` de una lista, y qué valor es mala idea usar ahí? En el test de la tarjeta, ¿qué consulta de Testing Library se parece más a lo que hace una persona? ¿Qué debería saber el Page Object y qué debería quedarse en el test?
 
 **Nota sobre React Compiler.** El temario lo menciona en el módulo 6. Déjalo desactivado hasta la Fase 12: ahí vas a querer ver primero los re-renders que evita.
 
@@ -121,9 +213,11 @@ Cada fase usa solo lo que el curso ya te ha dado, con una excepción deliberada:
 - [ ] **T3.2** Escribe en el dominio la función que mueve una tarjeta a otra columna. *Hecho cuando* es pura: mismos argumentos, mismo resultado, y no muta lo que recibe.
 - [ ] **T3.3** Test unitario de esa función en AAA, incluido el caso de mover a la columna en la que ya está. *Hecho cuando* el test fallaría si mutaras el array original.
 - [ ] **T3.4** Añade a la tarjeta los botones de mover y conéctalos con un callback hacia arriba. *Hecho cuando* el nombre accesible de cada botón dice qué tarjeta mueve y adónde.
-- [ ] **T3.5** Oculta o desactiva el movimiento imposible en los extremos. *Hecho cuando* la razón es perceptible sin ver el estilo.
-- [ ] **T3.6** Test de componente: al pulsar el botón, la tarjeta aparece en la otra columna. *Hecho cuando* usa `user-event` y no toca el estado por dentro.
-- [ ] **T3.7** E2E: mover una tarjeta de la primera a la segunda columna. *Hecho cuando* pasa tres veces seguidas sin esperas fijas.
+- [ ] **T3.5** Añade botones para subir y bajar una tarjeta dentro de su columna, con una función de dominio pura y su test. *Hecho cuando* el nuevo orden se ve en pantalla y el lector de pantalla lo anuncia en la posición nueva de la lista.
+- [ ] **T3.6** Oculta o desactiva el movimiento imposible en los extremos, entre columnas y dentro de la columna. *Hecho cuando* la razón es perceptible sin ver el estilo.
+- [ ] **T3.7** Test de la tarjeta sola: al pulsar un botón, llama a su callback con los argumentos correctos. *Hecho cuando* usa `vi.fn()` y comprueba los argumentos, no solo que se llamó.
+- [ ] **T3.8** Test de componente: al pulsar el botón, la tarjeta aparece en la otra columna. *Hecho cuando* usa `user-event` y no toca el estado por dentro.
+- [ ] **T3.9** E2E: mover una tarjeta de la primera a la segunda columna. *Hecho cuando* pasa tres veces seguidas sin esperas fijas.
 
 **Para desbloquearte.** ¿Por qué el estado vive en la página y no dentro de cada columna? ¿Qué se rompe si lo pones en la columna? Si dos tarjetas se llaman igual, ¿qué distingue sus botones para el test? ¿Por qué una función pura es más fácil de testear que el componente que la usa, y cuál de los dos tests te daría más miedo perder?
 
@@ -142,6 +236,7 @@ Cada fase usa solo lo que el curso ya te ha dado, con una excepción deliberada:
 - [ ] **T4.7** Crea el contexto del tablero con su proveedor y un hook propio. *Hecho cuando* usar el hook fuera del proveedor falla con un error que se entiende.
 - [ ] **T4.8** Quita el paso de props que el contexto hace innecesario. *Hecho cuando* ningún componente recibe props que solo está reenviando.
 - [ ] **T4.9** E2E: crear una tarjeta desde el modal y verla en su columna. *Hecho cuando* el Page Object expone «crear tarjeta» como una sola acción.
+- [ ] **T4.10** Añade a la tarjeta el avatar de la persona asignada, en WebP y con `srcSet` para pantallas normales y de alta densidad. *Hecho cuando* la pestaña Network muestra que el navegador descarga solo una de las versiones, y el avatar tiene un texto alternativo adecuado o se oculta a propósito porque el nombre ya está escrito.
 
 **Para desbloquearte.** ¿Qué parte del estado del formulario es derivada y no debería guardarse? ¿Cuándo necesita limpieza un efecto, y qué pasa exactamente si no la pones en el listener de `Escape`? ¿Por qué un hook propio sobre el contexto es mejor que exportar el contexto? El contexto, ¿qué problema resuelve y cuál no? ¿Cuántos componentes tenían que reenviar props antes de que doliera?
 
@@ -156,9 +251,14 @@ Cada fase usa solo lo que el curso ya te ha dado, con una excepción deliberada:
 - [ ] **T5.3** Escribe la función que da el color o la etiqueta de cada prioridad con comprobación exhaustiva. *Hecho cuando* añadir una prioridad nueva rompe la compilación en ese punto exacto.
 - [ ] **T5.4** Modela la tarjeta nueva, todavía sin identificador, distinta de la ya creada. *Hecho cuando* no puedes pasar una sin guardar donde se espera una guardada.
 - [ ] **T5.5** Repasa el código buscando `any` y aserciones, y sustituye cada una. *Hecho cuando* no queda ninguna sin un comentario que justifique por qué.
-- [ ] **T5.6** Borra los tests que ahora comprueban cosas que el compilador garantiza. *Hecho cuando* la suíte es más corta y no ha perdido cobertura real.
+- [ ] **T5.6** Decide entre `type` e `interface` para tus tipos de dominio y aplica la decisión en todo el proyecto. *Hecho cuando* puedes explicarla en una frase y no hay mezcla sin motivo.
+- [ ] **T5.7** Escribe la función que edita una tarjeta recibiendo solo los campos que cambian. *Hecho cuando* usa `Partial` y el compilador te impide cambiar el identificador.
+- [ ] **T5.8** Escribe un type guard con `in` para distinguir la tarjeta nueva de la guardada. *Hecho cuando* dentro del `if` el compilador sabe cuál es sin ninguna aserción.
+- [ ] **T5.9** Escribe una función genérica que busca por identificador en cualquier lista de cosas que tengan identificador. *Hecho cuando* sirve para tarjetas y tableros, y no compila con algo que no tenga identificador.
+- [ ] **T5.10** Deriva con un mapped type un tipo «tarjetas agrupadas por estado». *Hecho cuando* añadir un estado nuevo en T5.2 cambia este tipo sin tocarlo.
+- [ ] **T5.11** Borra los tests que ahora comprueban cosas que el compilador garantiza. *Hecho cuando* la suíte es más corta y no ha perdido cobertura real.
 
-**Para desbloquearte.** ¿Por qué el temario te pide evitar `enum` si parece justo lo que necesitas? ¿Qué diferencia hay entre anotar un tipo y usar `satisfies`, y cuál conserva la información concreta del valor? ¿Cómo consigues que el compilador te avise al añadir un caso, en vez de enterarte en ejecución? ¿Qué te da `unknown` que `any` no?
+**Para desbloquearte.** ¿Por qué el temario te pide evitar `enum` si parece justo lo que necesitas? ¿Qué hacen `as const`, `typeof` y `keyof` juntos en T5.2? ¿Qué diferencia hay entre anotar un tipo y usar `satisfies`, y cuál conserva la información concreta del valor? ¿Qué te da `extends` en un genérico? ¿Cómo consigues que el compilador te avise al añadir un caso, en vez de enterarte en ejecución? ¿Qué te da `unknown` que `any` no?
 
 **Señal de que esta fase ha funcionado:** varios tests tuyos dejan de tener sentido porque su caso ya no se puede escribir. Bórralos sin pena; esa es la ganancia.
 
@@ -170,7 +270,7 @@ Cada fase usa solo lo que el curso ya te ha dado, con una excepción deliberada:
 - [ ] **T6.2** Rompe cada test a propósito cambiando el código que prueba. *Hecho cuando* todos fallan; el que no falle, sobra o está mal escrito.
 - [ ] **T6.3** Busca tests atados a la implementación y reescríbelos contra el comportamiento. *Hecho cuando* puedes renombrar una función interna sin tocar ningún test.
 - [ ] **T6.4** Crea factorías de fixtures para tarjetas y tableros. *Hecho cuando* un test solo escribe los datos que le importan a ese test.
-- [ ] **T6.5** Define el puerto del repositorio de tableros y escribe un doble falso completo. *Hecho cuando* la pantalla funciona con el doble sin saber que lo es.
+- [ ] **T6.5** Define el puerto del repositorio de tableros y escribe un doble falso completo, como una clase que lo implementa. *Hecho cuando* la pantalla funciona con el doble sin saber que lo es, y el compilador se queja si a la clase le falta un método del puerto.
 - [ ] **T6.6** Test de pantalla con el doble inyectado. *Hecho cuando* espera por una consulta asíncrona y no con un tiempo fijo.
 - [ ] **T6.7** Inyecta lo no determinista: identificadores y fechas. *Hecho cuando* dos ejecuciones dan exactamente el mismo resultado.
 - [ ] **T6.8** Activa cobertura y mírala una vez. *Hecho cuando* puedes señalar una línea cubierta que no está realmente probada.
@@ -204,9 +304,14 @@ Cada fase usa solo lo que el curso ya te ha dado, con una excepción deliberada:
 - [ ] **T8.4** Saca los valores repetidos a tokens. *Hecho cuando* cambiar un token cambia toda la interfaz de forma coherente.
 - [ ] **T8.5** Estados de foco visibles en todo lo interactivo. *Hecho cuando* puedes recorrer el tablero entero con el teclado viendo siempre dónde estás.
 - [ ] **T8.6** Comprueba que nada se rompe al ampliar el texto al 200%. *Hecho cuando* no se corta ni se superpone nada.
-- [ ] **T8.7** Decide si entra Tailwind y, si entra, migra solo un componente. *Hecho cuando* puedes argumentar la decisión en dos frases.
+- [ ] **T8.7** Coloca el modal de la Fase 4 por encima del tablero con su fondo oscurecido. *Hecho cuando* queda encima de todo sin subir el `z-index` a ciegas, y sabes qué elemento crea su contexto de apilamiento.
+- [ ] **T8.8** Ordena tu CSS en capas con `@layer` y nombra las clases con BEM. *Hecho cuando* no queda ningún `!important` y puedes explicar por qué una regla gana a otra.
+- [ ] **T8.9** Haz que el tamaño de los títulos se adapte al ancho con `clamp()` y que el tablero ocupe la pantalla en móvil con unidades `dvh`. *Hecho cuando* en móvil la barra del navegador no tapa el tablero.
+- [ ] **T8.10** Añade una transición suave cuando una tarjeta cambia de sitio, animando solo `transform` u `opacity`. *Hecho cuando* con `prefers-reduced-motion` activado no hay animación y todo funciona igual.
+- [ ] **T8.11** Añade un gráfico de barras sencillo con las tarjetas por columna, dentro de un `<figure>`. *Hecho cuando* el gráfico tiene `figcaption` y su información también está en texto, por ejemplo en la tabla de la Fase 0.
+- [ ] **T8.12** Decide si entra Tailwind y, si entra, migra solo un componente usando `cx()` para las clases condicionales. *Hecho cuando* puedes argumentar la decisión en dos frases.
 
-**Para desbloquearte.** ¿Qué hace falta para que un hijo con scroll no desborde su contenedor en grid o en flex? ¿Por qué `height: 100%` falla tan a menudo y qué unidades te evitan el problema en móvil? ¿Qué diferencia hay entre `rem` y `px` cuando alguien amplía el texto? ¿Qué problema resuelve `@layer` que la especificidad te estaba causando?
+**Para desbloquearte.** ¿Qué hace falta para que un hijo con scroll no desborde su contenedor en grid o en flex? ¿Qué diferencia hay entre `position: relative`, `absolute`, `fixed` y `sticky`? ¿Por qué `height: 100%` falla tan a menudo y qué unidades te evitan el problema en móvil? ¿Qué diferencia hay entre `rem` y `px` cuando alguien amplía el texto? ¿Qué problema resuelve `@layer` que la especificidad te estaba causando?
 
 **Sobre Tailwind:** el temario lo plantea como herramienta, no como religión. Si lo metes, que sea porque has visto el problema que resuelve en *tu* CSS.
 
@@ -247,13 +352,14 @@ Cada fase usa solo lo que el curso ya te ha dado, con una excepción deliberada:
 *Módulo 18.* Once fases con los datos en memoria. El puerto que definiste en la Fase 6 hace que esta fase sea casi un cambio de implementación, y comprobarlo es media lección.
 
 - [ ] **T11.1** Implementa el puerto contra `localStorage`. *Hecho cuando* recargas y el tablero sigue ahí, sin tocar ningún componente.
-- [ ] **T11.2** Valida en la frontera lo que lees de fuera. *Hecho cuando* unos datos corruptos dan un error claro en vez de romper la pantalla.
-- [ ] **T11.3** Levanta una API falsa y haz una implementación HTTP del mismo puerto. *Hecho cuando* puedes cambiar de implementación en un solo punto.
-- [ ] **T11.4** Pinta los tres estados de la carga. *Hecho cuando* el cambio de estado se anuncia y no solo se ve.
-- [ ] **T11.5** Cancela la petición pendiente al cambiar de tablero rápido. *Hecho cuando* la respuesta tardía de un tablero no pisa a la del otro.
-- [ ] **T11.6** Mete MSW en los tests de componente. *Hecho cuando* no hacen peticiones de verdad y el de pantalla con el doble sigue existiendo.
-- [ ] **T11.7** Introduce TanStack Query y borra lo que deje obsoleto. *Hecho cuando* has quitado más código del que has añadido.
-- [ ] **T11.8** Maneja el fallo al guardar. *Hecho cuando* la persona sabe que no se guardó y puede reintentar.
+- [ ] **T11.2** Valida en la frontera con Zod lo que lees de fuera. *Hecho cuando* unos datos corruptos dan un error claro en vez de romper la pantalla, y el tipo sale del esquema en vez de escribirlo dos veces.
+- [ ] **T11.3** Levanta una API falsa y haz una implementación HTTP del mismo puerto con axios, con la URL de la API en una variable de entorno de Vite. *Hecho cuando* puedes cambiar de implementación en un solo punto y la URL no está escrita en el código.
+- [ ] **T11.4** Escribe una pequeña CLI de Node que pida las tarjetas a la API falsa con `fetch` y las liste en la terminal, lanzada con un script de npm. *Hecho cuando* funciona con la API arrancada y da un error claro con la API apagada.
+- [ ] **T11.5** Modela los tres estados de la carga como una unión discriminada y píntalos. *Hecho cuando* no puedes tener datos y error a la vez, y el cambio de estado se anuncia y no solo se ve.
+- [ ] **T11.6** Cancela la petición pendiente al cambiar de tablero rápido. *Hecho cuando* la respuesta tardía de un tablero no pisa a la del otro.
+- [ ] **T11.7** Mete MSW en los tests de componente. *Hecho cuando* no hacen peticiones de verdad y el de pantalla con el doble sigue existiendo.
+- [ ] **T11.8** Introduce TanStack Query y borra lo que deje obsoleto. *Hecho cuando* has quitado más código del que has añadido.
+- [ ] **T11.9** Maneja el fallo al guardar. *Hecho cuando* la persona sabe que no se guardó y puede reintentar.
 
 **Para desbloquearte.** ¿Qué pasa si llegan dos respuestas en orden distinto al que las pediste, y por qué `AbortController` lo arregla? ¿Por qué validar en la frontera y no confiar en los tipos de TypeScript, si ya los tienes? ¿Qué diferencia hay entre el estado de tu aplicación y el estado del servidor, y por qué una librería entera se dedica solo al segundo? ¿Qué aporta MSW frente a tu doble falso, y por qué quieres los dos?
 
@@ -269,15 +375,20 @@ Cada fase usa solo lo que el curso ya te ha dado, con una excepción deliberada:
 - [ ] **T12.4** Memoiza solo donde el Profiler lo justifique. *Hecho cuando* cada `memo`, `useMemo` o `useCallback` tiene detrás una medición, y has quitado los que no la tenían.
 - [ ] **T12.5** Activa React Compiler y compara con tu memoización a mano. *Hecho cuando* sabes qué memoizaciones tuyas sobran ahora.
 - [ ] **T12.6** Genera un tablero con 500 tarjetas en una columna y mide. *Hecho cuando* sabes si necesitas virtualizar, con un número que lo respalde.
-- [ ] **T12.7** Mide LCP, CLS e INP con Lighthouse y con el panel Performance. *Hecho cuando* cada métrica está en verde o tienes apuntado por qué no.
+- [ ] **T12.7** Escribe a propósito en un estado o un store durante el render y observa qué pasa; después arréglalo. *Hecho cuando* puedes explicar el aviso o el bucle que provoca y dónde debía ir esa escritura.
+- [ ] **T12.8** Después de mover una tarjeta, lleva el scroll y el foco hasta ella usando una ref. *Hecho cuando* funciona en una columna larga y puedes decir por qué una ref y no un estado.
+- [ ] **T12.9** Mide con una ref el alto de una columna y muéstralo en desarrollo; después provoca *layout thrashing* leyendo y escribiendo medidas en bucle, y arréglalo. *Hecho cuando* el panel Performance muestra la diferencia entre las dos versiones.
+- [ ] **T12.10** Carga el modal bajo demanda con `import()` dinámico y `lazy`. *Hecho cuando* la pestaña Network muestra un archivo aparte que solo se pide al abrir el modal.
+- [ ] **T12.11** Analiza qué pesa en la carga: bundle, fuentes e imágenes, y la ruta crítica. *Hecho cuando* sabes qué recurso retrasa el primer pintado y has mejorado al menos uno.
+- [ ] **T12.12** Mide LCP, CLS e INP con Lighthouse y con el panel Performance. *Hecho cuando* cada métrica está en verde o tienes apuntado por qué no.
 
-**Para desbloquearte.** ¿Qué dispara un re-render: un cambio de props, de estado, de contexto o que el padre se pinte? ¿Por qué un objeto o una función creados en el render rompen `memo` en el hijo? Si memoizar es gratis, ¿por qué no se hace siempre? ¿Qué mide INP que no mide el tiempo de carga, y qué interacción de tu tablero es la candidata a empeorarlo?
+**Para desbloquearte.** ¿Qué dispara un re-render: un cambio de props, de estado, de contexto o que el padre se pinte? ¿Qué pasos sigue el navegador para pintar (estilo, layout, pintado, composición), y cuáles se salta al animar `transform`? ¿Por qué un objeto o una función creados en el render rompen `memo` en el hijo? Si memoizar es gratis, ¿por qué no se hace siempre? ¿Qué mide INP que no mide el tiempo de carga, y qué interacción de tu tablero es la candidata a empeorarlo?
 
 **Regla de esta fase:** sin medición no hay optimización. Un `useMemo` puesto por intuición es deuda con apariencia de cuidado.
 
-## Fase 13 — Arrastrar tarjetas, sin dejar a nadie fuera
+## Fase 13 — Arrastrar tarjetas, sin dejar a nadie fuera (opcional)
 
-*Módulo 19.* Por fin el drag & drop. Llega tarde a propósito: los botones de la Fase 3 siguen siendo la alternativa por teclado, y tus E2E ya cubren el movimiento. El arrastre es una capa nueva sobre una función de dominio que ya existe y está probada.
+*Módulo 19, opcional en tu itinerario.* Lo obligatorio que se toca aquí (animar con `transform`, movimiento reducido, refs) ya lo practicas en las Fases 8 y 12; esta fase es para cuando quieras ir más allá. Por fin el drag & drop. Llega tarde a propósito: los botones de la Fase 3 siguen siendo la alternativa por teclado, y tus E2E ya cubren el movimiento. El arrastre es una capa nueva sobre una función de dominio que ya existe y está probada.
 
 - [ ] **T13.1** Detecta el gesto de arrastre con pointer events sobre una tarjeta. *Hecho cuando* funciona igual con ratón, con táctil y con lápiz, y un clic corto sigue siendo un clic.
 - [ ] **T13.2** Haz que la tarjeta siga al puntero mientras arrastras. *Hecho cuando* el movimiento usa `transform` y no provoca reflujo de layout en cada frame.
@@ -311,17 +422,19 @@ Cada fase usa solo lo que el curso ya te ha dado, con una excepción deliberada:
 
 *Módulo 21.* Todo lo que hoy compruebas a mano pasa a comprobarse solo: al guardar, al hacer commit y en cada push. Es la fase que convierte tu práctica en un proyecto que otra persona podría clonar y mantener.
 
-- [ ] **T15.1** Sustituye ESLint y el formateador por Biome. *Hecho cuando* un solo comando formatea y hace lint, y has decidido qué reglas de la Fase 1 conservas.
-- [ ] **T15.2** Define en `package.json` los scripts que usará la CI: tipos, lint, unitarios y E2E. *Hecho cuando* cada uno funciona por separado y falla con código de salida distinto de cero.
-- [ ] **T15.3** Añade Husky con un hook de pre-commit que revise solo los archivos cambiados. *Hecho cuando* un commit con un error de lint se bloquea y uno limpio tarda menos de unos segundos.
-- [ ] **T15.4** Crea un workflow de GitHub Actions que compruebe tipos, lint y unitarios en cada push. *Hecho cuando* un push con un test roto sale en rojo en GitHub.
-- [ ] **T15.5** Añade los E2E de Playwright a la CI con el informe como artefacto. *Hecho cuando* puedes abrir la traza de un fallo desde GitHub sin reproducirlo en local.
-- [ ] **T15.6** Cachea las dependencias y los navegadores de Playwright. *Hecho cuando* la segunda ejecución es claramente más rápida que la primera.
-- [ ] **T15.7** Protege la rama principal para que solo entre código con la CI en verde. *Hecho cuando* no puedes hacer merge de una PR en rojo.
+- [ ] **T15.1** Pasa el proyecto de npm a pnpm. *Hecho cuando* solo queda el lockfile de pnpm y `pnpm install` desde cero deja todo en verde.
+- [ ] **T15.2** Convierte el repo en un workspace y saca el dominio a su propio paquete. *Hecho cuando* la interfaz importa el dominio como paquete, y el dominio no puede importar nada de la interfaz aunque lo intentes.
+- [ ] **T15.3** Sustituye ESLint y el formateador por Biome. *Hecho cuando* un solo comando formatea y hace lint, y has decidido qué reglas de la Fase 1 conservas.
+- [ ] **T15.4** Define en `package.json` los scripts que usará la CI: tipos, lint, unitarios y E2E. *Hecho cuando* cada uno funciona por separado y falla con código de salida distinto de cero.
+- [ ] **T15.5** Añade Husky con un hook de pre-commit que revise solo los archivos cambiados. *Hecho cuando* un commit con un error de lint se bloquea y uno limpio tarda menos de unos segundos.
+- [ ] **T15.6** Crea un workflow de GitHub Actions que compruebe tipos, lint y unitarios en cada push. *Hecho cuando* un push con un test roto sale en rojo en GitHub.
+- [ ] **T15.7** Añade los E2E de Playwright a la CI con el informe como artefacto. *Hecho cuando* puedes abrir la traza de un fallo desde GitHub sin reproducirlo en local.
+- [ ] **T15.8** Cachea las dependencias y los navegadores de Playwright. *Hecho cuando* la segunda ejecución es claramente más rápida que la primera.
+- [ ] **T15.9** Protege la rama principal para que solo entre código con la CI en verde. *Hecho cuando* no puedes hacer merge de una PR en rojo.
 
 **Para desbloquearte.** ¿Qué debe ir en el hook de pre-commit y qué solo en la CI, y por qué no todo en el hook? ¿Qué diferencia hay entre `npm install` y `npm ci`, y cuál quieres en la CI? ¿Por qué un E2E que pasa en local puede fallar en la CI? ¿Qué ganas guardando la traza de Playwright solo en los fallos?
 
-**Cierre del proyecto:** si alguien clona el repo, ejecuta `npm ci` y un solo comando, y le sale todo en verde, has terminado.
+**Cierre del proyecto:** si alguien clona el repo, instala las dependencias desde el lockfile, ejecuta un solo comando, y le sale todo en verde, has terminado.
 
 ## Anexo A — Convenciones de test
 
