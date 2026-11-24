@@ -1,7 +1,7 @@
 # Tablero de tareas — guía por fases
 
 > Copia local de la guía. Versión editable y comentable: https://claude.ai/artifact/4EDthFTfHLdPJHukTFZkt7
-> Última sincronización: 2026-11-18. Si cambias una de las dos, avísame para mantenerlas iguales.
+> Última sincronización: 2026-11-24. Si cambias una de las dos, avísame para mantenerlas iguales.
 
 ## Cómo usar esta guía
 
@@ -148,10 +148,10 @@ Cada fase usa solo lo que el curso ya te ha dado, con una excepción deliberada:
 *Repasa:* `<table>`, `<caption>`, `<thead>`, `<tbody>`, `<tr>`, `<th>` con su atributo `scope` y `<td>`; la pestaña Console de DevTools y `document.querySelectorAll`.
 
 - [ ] **T0.6.1** Debajo de las tres columnas, dentro de la zona principal, crea una tabla con un título visible: «Resumen del sprint». *Comprueba:* el árbol muestra `table "Resumen del sprint"`.
-- [ ] **T0.6.2** Añade la fila de cabeceras: «Columna» y «Tarjetas». *Comprueba:* las dos aparecen como `columnheader`.
-- [ ] **T0.6.3** Añade una fila por cada columna del tablero, con su número de tarjetas. *Comprueba:* hay tres filas de datos y los números coinciden con tus listas.
+- [ ] **T0.6.2** Añade la fila de cabeceras: «Columna» y «Tarjetas», marcadas como cabeceras de columna con `scope`. *Comprueba:* las dos aparecen como `columnheader`.
+- [ ] **T0.6.3** Añade una fila por cada columna del tablero: su nombre como cabecera de fila y su número de tarjetas. *Comprueba:* hay tres filas de datos, cada nombre sale como `rowheader` y los números coinciden con tus listas.
 - [ ] **T0.6.4** En la pestaña Console, pregúntale al DOM cuántos `li` hay en la página. *Comprueba:* el número coincide con la suma de tu tabla.
-- [ ] **T0.6.5** Recorre la tabla con Narrador, celda a celda (`Ctrl` + `Alt` + flechas). *Comprueba:* al cambiar de celda oyes también la cabecera de la columna.
+- [ ] **T0.6.5** Recorre la tabla con VoiceOver celda a celda: se activa con `Cmd` + `F5` y, dentro de la tabla, te mueves con `Ctrl` + `Option` + flechas. *Comprueba:* al cambiar de columna oyes su cabecera, y al cambiar de fila, el nombre de la fila.
 - [ ] **T0.6.6** Haz commit.
 
 ### T0.7 — Auditoría y contrato de nombres
